@@ -1,1 +1,1 @@
-# drupal_lightlazyloader
+# Drupal module for LightLazyLoader
