@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * lightlazyloader 
+ *
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function lightlazyloader_menu() {
+  $items['admin/config/media/lightlazyloader'] = array(
+    'title' => 'Image LightLazyloader',
+    'page callback' => 'drupal_get_form',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer lightlazyloader'),
+    'page arguments' => array('lightlazyloader_admin', NULL),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'lightlazyloader.admin.inc',
+    'description' => 'Configure Lazyloader',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function lightlazyloader_permission() {
+  return array(
+    'administer lightlazyloader' => array(
+      'title' => t('Administer LightLazyloader'),
+      'description' => t('Perform administration tasks for LightLazyloader.'),
+    ),
+  );
+}
+
+
+
+
