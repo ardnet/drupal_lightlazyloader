@@ -1,4 +1,5 @@
 name = Image LightLazyLoader
 description = "Implement LightLazyLoader in an image, to improve website performance for multiple image loads."
 core = "7.x"
+dependencies[] = libraries
 dependencies[] = image

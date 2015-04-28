@@ -7,7 +7,34 @@
  */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_libraries_info().
+ */
+function lightlazyloader_libraries_info() {
+  $libraries = array();
+  $libraries['lightlazyloader'] = array(
+    'name' => 'LightLazyLoader',
+    'vendor url' => 'http://singerxt.github.io/LightLazyLoader',
+    'downloadload url' => 'https://github.com/singerxt/LightLazyLoader/tree/v0.1',
+    'version callback' => 'lightlazyloader_libraries_version',
+    'files' => array(
+      'js' => array(
+        'src/LightLazyLoader.min.js',
+      ),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+ * Custom function for libraries version callback.
+ * @todo still not sure whether we use this callback.
+ */
+function lightlazyloader_libraries_version() {
+  return TRUE;
+}
+
+/**
+ * Implements hook_menu().
  */
 function lightlazyloader_menu() {
   $items['admin/config/media/lightlazyloader'] = array(
@@ -15,11 +42,12 @@ function lightlazyloader_menu() {
     'page callback' => 'drupal_get_form',
     'access callback' => 'user_access',
     'access arguments' => array('administer lightlazyloader'),
-    'page arguments' => array('lightlazyloader_admin', NULL),
+    'page arguments' => array('lightlazyloader_admin_settings', NULL),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'lightlazyloader.admin.inc',
-    'description' => 'Configure Lazyloader',
+    'description' => 'Configure LightLazyloader',
   );
+
   return $items;
 }
 
@@ -35,6 +63,45 @@ function lightlazyloader_permission() {
   );
 }
 
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function lightlazyloader_theme_registry_alter(&$theme_registry) {
+  if (variable_get('lightlazyloader_enabled')) {
+    $theme_registry['image']['function'] = 'lightlazyloader_image';
+  }
+  return $theme_registry;
+}
 
+/**
+ * Callback for image in hook_theme_registry_alter().
+ */
+function lightlazyloader_image($variables) {
+  $attributes = $variables['attributes'];
+  $attributes['data-src'] = file_create_url($variables['path']);
+  $attributes['class'] = array('lazy-image');
 
+  foreach (array('width', 'height', 'title') as $key) {
+    if (isset($variables[$key])) {
+      $attributes[$key] = $variables[$key];
+    }
+  }
+
+  return '<span' . drupal_attributes($attributes) . ' ></span>';
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function lightlazyloader_page_build(&$page) {
+  if (variable_get('lightlazyloader_enabled')) {
+    $library_detect = libraries_detect('lightlazyloader');
+    if (empty($library_detect['error'])) {
+      libraries_load('lightlazyloader');  
+    }
+    else {
+      drupal_set_message($library_detect['error message'], 'warning');
+    }    
+  }
+}
 
